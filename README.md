@@ -1,4 +1,4 @@
-# UnityEmbeddedCodeEditor 0.1
+# UnityInternalScriptEditor
 
 Very simple, very limited, in-Editor C# script editor for Unity.
 
