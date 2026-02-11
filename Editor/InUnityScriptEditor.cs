@@ -44,25 +44,54 @@ namespace XaviGames.CodeEditor
 
         private void OnEnable()
         {
-            _textAreaStyle = new GUIStyle(EditorStyles.textArea)
-            {
-                font = Font.CreateDynamicFontFromOSFont(
-                    new[] { "Consolas", "Menlo", "Courier New" }, 20),
-                wordWrap = false
-            };
-
-            _lineNumberStyle = new GUIStyle(EditorStyles.label)
-            {
-                alignment = TextAnchor.UpperRight,
-                padding = new RectOffset(0, 6, 2, 0),
-                normal = { textColor = new Color(0.55f, 0.55f, 0.55f) }
-            };
+            _textAreaStyle = null;
+            _lineNumberStyle = null;
 
             TryLoadSelectedScript();
         }
 
+        private void EnsureStyles()
+        {
+            if (_textAreaStyle == null)
+            {
+                GUIStyle baseTextArea = EditorStyles.textArea ?? (GUI.skin != null ? GUI.skin.textArea : null);
+                if (baseTextArea != null)
+                {
+                    _textAreaStyle = new GUIStyle(baseTextArea)     
+                    {
+                        font = Font.CreateDynamicFontFromOSFont(new[] { "Consolas", "Menlo", "Courier New" }, 20),
+                        wordWrap = false
+                    };
+                }
+                else
+                {
+                    _textAreaStyle = new GUIStyle() { wordWrap = false };
+                }
+            }
+
+            if (_lineNumberStyle == null)
+            {
+                GUIStyle baseLabel = EditorStyles.label ?? (GUI.skin != null ? GUI.skin.label : null);
+                if (baseLabel != null)
+                {
+                    _lineNumberStyle = new GUIStyle(baseLabel)
+                    {
+                        alignment = TextAnchor.UpperRight,
+                        padding = new RectOffset(0, 6, 2, 0),
+                    };
+                    _lineNumberStyle.normal.textColor = new Color(0.55f, 0.55f, 0.55f);
+                }
+                else
+                {
+                    _lineNumberStyle = new GUIStyle() { alignment = TextAnchor.UpperRight, padding = new RectOffset(0, 6, 2, 0) };
+                    _lineNumberStyle.normal.textColor = new Color(0.55f, 0.55f, 0.55f);
+                }
+            }
+        }
+
         private void OnGUI()
         {
+            EnsureStyles();
             DrawToolbar();
             DrawEditorArea();
         }
