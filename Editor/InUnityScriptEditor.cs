@@ -1,16 +1,19 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using System.IO;
+using System.Text;
 
-namespace ScriptEditor 
+namespace XaviGames.CodeEditor
 {
     public class InUnityScriptEditor : EditorWindow
     {
-        private string filePath = "";
-        private string fileContent = "";
-        private Vector2 scroll;
-        private GUIStyle textAreaStyle;
-        private bool hasUnsavedChanges;
+        private string _filePath = "";
+        private string _fileContent = "";
+        private Vector2 _scroll;
+        private bool _hasUnsavedChanges;
+
+        private GUIStyle _textAreaStyle;
+        private GUIStyle _lineNumberStyle;
 
         [MenuItem("Tools/In-Unity Script Editor")]
         public static void OpenWindow()
@@ -22,6 +25,7 @@ namespace ScriptEditor
         private static void OpenFromProject()
         {
             Object selected = Selection.activeObject;
+
             if (selected == null)
             {
                 return;
@@ -34,16 +38,24 @@ namespace ScriptEditor
                 return;
             }
 
-            var window = GetWindow<InUnityScriptEditor>("Script Editor");
+            InUnityScriptEditor window = GetWindow<InUnityScriptEditor>("Script Editor");
             window.LoadFile(Path.GetFullPath(path));
         }
 
         private void OnEnable()
         {
-            textAreaStyle = new GUIStyle(EditorStyles.textArea)
+            _textAreaStyle = new GUIStyle(EditorStyles.textArea)
             {
-                font = Font.CreateDynamicFontFromOSFont("Consolas", 14),
+                font = Font.CreateDynamicFontFromOSFont(
+                    new[] { "Consolas", "Menlo", "Courier New" }, 20),
                 wordWrap = false
+            };
+
+            _lineNumberStyle = new GUIStyle(EditorStyles.label)
+            {
+                alignment = TextAnchor.UpperRight,
+                padding = new RectOffset(0, 6, 2, 0),
+                normal = { textColor = new Color(0.55f, 0.55f, 0.55f) }
             };
 
             TryLoadSelectedScript();
@@ -69,17 +81,19 @@ namespace ScriptEditor
                 TryLoadSelectedScript();
             }
 
-            EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(filePath));
+            EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_filePath));
+
             if (GUILayout.Button("Save", EditorStyles.toolbarButton, GUILayout.Width(50)))
             {
                 SaveFile();
             }
+
             EditorGUI.EndDisabledGroup();
 
             GUILayout.Space(10);
-            GUILayout.Label(string.IsNullOrEmpty(filePath) ? "No file loaded" : filePath);
+            GUILayout.Label(string.IsNullOrEmpty(_filePath) ? "No file loaded" : _filePath);
 
-            if (hasUnsavedChanges)
+            if (_hasUnsavedChanges)
             {
                 GUILayout.Label("*", GUILayout.Width(10));
             }
@@ -89,27 +103,58 @@ namespace ScriptEditor
 
         private void DrawEditorArea()
         {
-            if (string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrEmpty(_filePath))
             {
-                EditorGUILayout.HelpBox("Select a .cs file in the Project window or click Open.", MessageType.Info);
+                EditorGUILayout.HelpBox(
+                    "Select a .cs file in the Project window or click Open.",
+                    MessageType.Info);
                 return;
             }
 
             EditorGUI.BeginChangeCheck();
 
-            scroll = EditorGUILayout.BeginScrollView(scroll);
-            fileContent = EditorGUILayout.TextArea(fileContent, textAreaStyle, GUILayout.ExpandHeight(true));
+            _scroll = EditorGUILayout.BeginScrollView(_scroll);
+            EditorGUILayout.BeginHorizontal();
+
+            DrawLineNumbers();
+            DrawTextEditor();
+
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndScrollView();
 
             if (EditorGUI.EndChangeCheck())
             {
-                hasUnsavedChanges = true;
+                _hasUnsavedChanges = true;
             }
+        }
+
+        private void DrawLineNumbers()
+        {
+            int lineCount = Mathf.Max(1, _fileContent.Split('\n').Length);
+
+            EditorGUILayout.BeginVertical(GUILayout.Width(45));
+
+            for (int i = 1; i <= lineCount; i++)
+            {
+                GUILayout.Label(i.ToString(), _lineNumberStyle);
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawTextEditor()
+        {
+            _fileContent = EditorGUILayout.TextArea(
+                _fileContent,
+                _textAreaStyle,
+                GUILayout.ExpandHeight(true),
+                GUILayout.ExpandWidth(true));
         }
 
         private void TryLoadSelectedScript()
         {
             Object selected = Selection.activeObject;
+
             if (selected == null)
             {
                 return;
@@ -132,9 +177,12 @@ namespace ScriptEditor
                 return;
             }
 
-            filePath = fullPath;
-            fileContent = File.ReadAllText(filePath);
-            hasUnsavedChanges = false;
+            _filePath = fullPath;
+
+            _fileContent = File.ReadAllText(_filePath)
+                .Replace("\r\n", "\n");
+
+            _hasUnsavedChanges = false;
             Repaint();
         }
 
@@ -143,28 +191,31 @@ namespace ScriptEditor
             string path = EditorUtility.OpenFilePanel(
                 "Open C# Script",
                 Application.dataPath,
-                "cs"
-            );
+                "cs");
 
-            if (string.IsNullOrEmpty(path))
+            if (!string.IsNullOrEmpty(path))
             {
-                return;
+                LoadFile(path);
             }
-
-            LoadFile(path);
         }
 
         private void SaveFile()
         {
-            if (string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrEmpty(_filePath))
             {
                 return;
             }
 
-            File.WriteAllText(filePath, fileContent);
-            hasUnsavedChanges = false;
+            string content = _fileContent.Replace("\r", "").Replace("\n", "\r\n");
+
+            File.WriteAllText(
+                _filePath,
+                content,
+                new UTF8Encoding(true)
+            );
+
+            _hasUnsavedChanges = false;
             AssetDatabase.Refresh();
         }
     }
-
 }
