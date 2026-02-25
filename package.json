@@ -1,0 +1,45 @@
+{
+  "name": "xaviedit",
+  "version": "1.0.0",
+  "description": "Simple external script editor for Unity and everyday programming languages.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiago-xavier-braga/XaviEdit.git"
+  },
+  "keywords": [],
+  "author": "Tiago Xavier Braga",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tiago-xavier-braga/XaviEdit/issues"
+  },
+  "homepage": "https://github.com/tiago-xavier-braga/XaviEdit#readme",
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.tiago-xavier-braga.xaviedit",
+    "productName": "XaviEdit",
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  },
+  "dependencies": {
+    "@electron/remote": "^2.1.3"
+  }
+}

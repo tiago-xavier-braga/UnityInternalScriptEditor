@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XaviEdit</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div id="titlebar">
+    <span id="app-name">XaviEdit</span>
+    <button class="menu-btn" onclick="openFile()">Open</button>
+    <button class="menu-btn" onclick="newFile()">New</button>
+    <button class="menu-btn" onclick="saveFile()">Save</button>
+  </div>
+
+  <div id="tabbar">
+    <button id="new-tab-btn" title="New file" onclick="newFile()">+</button>
+  </div>
+
+  <div id="editor-area">
+    <div class="empty-hint" id="empty-hint">
+      <span class="big">📄</span>
+      <span>Open a file or create a new one</span>
+      <button class="menu-btn" style="border:1px solid var(--border);margin-top:4px" onclick="newFile()">New File</button>
+    </div>
+  </div>
+
+  <div id="statusbar">
+    <span class="status-item bold" id="s-lang">Plain Text</span>
+    <span class="status-item" id="s-cursor">Ln 1, Col 1</span>
+    <span id="status-spacer"></span>
+    <span class="status-item" id="s-encoding">UTF-8</span>
+    <span class="status-item" id="s-lines">0 lines</span>
+  </div>
+
+  <input type="file" id="file-input" style="display:none" onchange="handleFileOpen(event)">
+
+  <script src="highlight.js"></script>
+  <script src="tabs.js"></script>
+  <script src="editor.js"></script>
+  <script src="files.js"></script>
+  <script src="shortcuts.js"></script>
+
+</body>
+</html>
