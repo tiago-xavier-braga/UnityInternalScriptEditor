@@ -4,6 +4,11 @@ A simple, lightweight external script editor built for Unity and everyday progra
 Built with Electron. No autocomplete, no bloat. Just code.
 
 ---
+<p align="center">
+  <img src="Screenshot.png" alt="XaviEdit" width="800"/>
+</p>
+
+---
 
 ## What is it?
 
